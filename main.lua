@@ -1,4 +1,4 @@
--- [[ 7chronic Ultra Suite v5.1 - Integrated Anti-VC Command ]]
+-- [[ 7chronic Ultra Suite v5.3 - Complete Master Release ]]
 local Players = game:GetService("Players")
 local CoreGui = game:GetService("CoreGui")
 local RunService = game:GetService("RunService")
@@ -184,7 +184,7 @@ local SearchBox = Instance.new("TextBox")
 SearchBox.Size = UDim2.new(1, -32, 0, 32)
 SearchBox.Position = UDim2.new(0, 16, 0, 52)
 SearchBox.BackgroundColor3 = Color3.fromRGB(26, 26, 38)
-SearchBox.PlaceholderText = "🔍 Search 100+ commands..."
+SearchBox.PlaceholderText = "🔍 Search commands..."
 SearchBox.PlaceholderColor3 = Color3.fromRGB(110, 110, 135)
 SearchBox.Text = ""
 SearchBox.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -212,10 +212,11 @@ Grid.SortOrder = Enum.SortOrder.Name
 Grid.Parent = Scroll
 
 ----------------------------------------------------
--- COMMANDS DATABASE
+-- COMMANDS DATABASE (FULL MASTER LIST)
 ----------------------------------------------------
 local Commands = {
-    ["antivc"] = "antivc - Load Anti-VC bypass loader",
+    ["moist7"] = "moist7 - Execute Moist 7 Luarmor loader",
+    ["antivc"] = "antivc - Execute Moist 7 Luarmor loader",
     ["fly"] = "fly [speed] - Fly around",
     ["unfly"] = "unfly - Stop flight",
     ["ws"] = "ws [num] - Walk speed",
@@ -226,12 +227,9 @@ local Commands = {
     ["clip"] = "clip - Disable noclip",
     ["infinitejump"] = "infinitejump - Infinite jump",
     ["uninfinitejump"] = "uninfinitejump - Normal jump",
-    ["ctrlclicktp"] = "ctrlclicktp - Teleport on Ctrl+Click",
-    ["unctrlclicktp"] = "unctrlclicktp - Disable Ctrl+Click TP",
     ["goto"] = "goto [player] - Teleport to player",
     ["bring"] = "bring [player] - Bring player to you",
     ["tp"] = "tp [p1] [p2] - Teleport p1 to p2",
-    ["tppos"] = "tppos [x] [y] [z] - Coordinate TP",
     ["float"] = "float - Hover in mid-air",
     ["unfloat"] = "unfloat - Stop hovering",
     ["freeze"] = "freeze - Anchor player",
@@ -257,14 +255,6 @@ local Commands = {
     ["unsparkles"] = "unsparkles - Remove sparkles",
     ["esp"] = "esp - Highlight players",
     ["unesp"] = "unesp - Remove highlights",
-    ["chams"] = "chams - Body chams wallhack",
-    ["unchams"] = "unchams - Remove body chams",
-    ["fov"] = "fov [num] - Change FOV angle",
-    ["fixcam"] = "fixcam - Reset camera view",
-    ["freecam"] = "freecam - Detach camera",
-    ["unfreecam"] = "unfreecam - Reattach camera",
-    ["view"] = "view [player] - Spectate target",
-    ["unview"] = "unview - Spectate self",
     ["fullbright"] = "fullbright - Remove shadows",
     ["day"] = "day - Set daytime 14:00",
     ["night"] = "night - Set nighttime 00:00",
@@ -279,7 +269,7 @@ local Commands = {
 -- Engine Variables
 local Flying = false
 local FlySpeed = 50
-local FlyConnection, InfJumpConnection, SpinConnection, CtrlTpConnection, AntiAfkConnection = nil, nil, nil, nil, nil
+local FlyConnection, InfJumpConnection, SpinConnection = nil, nil, nil
 
 local function PopulateModal(filter)
     for _, child in pairs(Scroll:GetChildren()) do
@@ -425,7 +415,7 @@ local function GetPlayer(str)
 end
 
 ----------------------------------------------------
--- COMMAND ROUTER
+-- FULL COMMAND ROUTER
 ----------------------------------------------------
 local function ExecuteCommand(cmdStr)
     local args = string.split(cmdStr, " ")
@@ -438,10 +428,10 @@ local function ExecuteCommand(cmdStr)
     local hum = char and char:FindFirstChildOfClass("Humanoid")
     local root = char and char:FindFirstChild("HumanoidRootPart")
 
-    if cmd == "antivc" then
+    if cmd == "moist7" or cmd == "antivc" then
         task.spawn(function()
             pcall(function()
-                loadstring(game:HttpGet("https://mois7.xyz/loader"))()
+                loadstring(game:HttpGet("https://api.luarmor.net/files/v4/loaders/c146e7169df99db2afa5052b177dd747.lua"))()
             end)
         end)
     elseif cmd == "cmds" then ToggleModal()
@@ -493,6 +483,95 @@ local function ExecuteCommand(cmdStr)
         if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") and root then
             target.Character.HumanoidRootPart.CFrame = root.CFrame * CFrame.new(0, 0, -3)
         end
+    elseif cmd == "float" then
+        if root and not root:FindFirstChild("7chronicFloat") then
+            local bv = Instance.new("BodyVelocity")
+            bv.Name = "7chronicFloat"
+            bv.MaxForce = Vector3.new(0, 9e9, 0)
+            bv.Velocity = Vector3.new(0, 0, 0)
+            bv.Parent = root
+        end
+    elseif cmd == "unfloat" then
+        if root and root:FindFirstChild("7chronicFloat") then root["7chronicFloat"]:Destroy() end
+    elseif cmd == "freeze" then if root then root.Anchored = true end
+    elseif cmd == "unfreeze" then if root then root.Anchored = false end
+    elseif cmd == "god" then if hum then hum.MaxHealth = math.huge; hum.Health = math.huge end
+    elseif cmd == "ungod" then if hum then hum.MaxHealth = 100; hum.Health = 100 end
+    elseif cmd == "reset" then if hum then hum.Health = 0 end
+    elseif cmd == "invis" then
+        if char then
+            for _, p in pairs(char:GetDescendants()) do
+                if p:IsA("BasePart") or p:IsA("Decal") then p.Transparency = 1 end
+            end
+        end
+    elseif cmd == "vis" then
+        if char then
+            for _, p in pairs(char:GetDescendants()) do
+                if p:IsA("BasePart") and p.Name ~= "HumanoidRootPart" then p.Transparency = 0
+                elseif p:IsA("Decal") then p.Transparency = 0 end
+            end
+        end
+    elseif cmd == "sit" then if hum then hum.Sit = true end
+    elseif cmd == "lay" then
+        if hum and root then
+            hum.Sit = true
+            root.CFrame = root.CFrame * CFrame.Angles(math.rad(90), 0, 0)
+        end
+    elseif cmd == "stand" then if hum then hum.Sit = false end
+    elseif cmd == "spin" then
+        local speed = numVal or 20
+        if SpinConnection then SpinConnection:Disconnect() end
+        SpinConnection = RunService.RenderStepped:Connect(function()
+            if root then root.CFrame = root.CFrame * CFrame.Angles(0, math.rad(speed), 0) end
+        end)
+    elseif cmd == "unspin" then if SpinConnection then SpinConnection:Disconnect(); SpinConnection = nil end
+    elseif cmd == "size" then
+        if hum and numVal then
+            for _, scale in pairs(hum:GetChildren()) do
+                if scale:IsA("NumberValue") then scale.Value = numVal end
+            end
+        end
+    elseif cmd == "ghost" then
+        if char then
+            for _, p in pairs(char:GetDescendants()) do
+                if p:IsA("BasePart") and p.Name ~= "HumanoidRootPart" then p.Transparency = 0.5 end
+            end
+        end
+    elseif cmd == "unghost" then
+        if char then
+            for _, p in pairs(char:GetDescendants()) do
+                if p:IsA("BasePart") and p.Name ~= "HumanoidRootPart" then p.Transparency = 0 end
+            end
+        end
+    elseif cmd == "fire" then if root and not root:FindFirstChildOfClass("Fire") then Instance.new("Fire", root) end
+    elseif cmd == "unfire" then if root and root:FindFirstChildOfClass("Fire") then root:FindFirstChildOfClass("Fire"):Destroy() end
+    elseif cmd == "smoke" then if root and not root:FindFirstChildOfClass("Smoke") then Instance.new("Smoke", root) end
+    elseif cmd == "unsmoke" then if root and root:FindFirstChildOfClass("Smoke") then root:FindFirstChildOfClass("Smoke"):Destroy() end
+    elseif cmd == "sparkles" then if root and not root:FindFirstChildOfClass("Sparkles") then Instance.new("Sparkles", root) end
+    elseif cmd == "unsparkles" then if root and root:FindFirstChildOfClass("Sparkles") then root:FindFirstChildOfClass("Sparkles"):Destroy() end
+    elseif cmd == "esp" then
+        for _, p in pairs(Players:GetPlayers()) do
+            if p ~= LocalPlayer and p.Character and not p.Character:FindFirstChild("7chronicHighlight") then
+                local hl = Instance.new("Highlight")
+                hl.Name = "7chronicHighlight"
+                hl.FillColor = Color3.fromRGB(160, 90, 255)
+                hl.OutlineColor = Color3.fromRGB(255, 255, 255)
+                hl.Parent = p.Character
+            end
+        end
+    elseif cmd == "unesp" then
+        for _, p in pairs(Players:GetPlayers()) do
+            if p.Character and p.Character:FindFirstChild("7chronicHighlight") then
+                p.Character["7chronicHighlight"]:Destroy()
+            end
+        end
+    elseif cmd == "fullbright" then
+        Lighting.Brightness = 2
+        Lighting.ClockTime = 14
+        Lighting.FogEnd = 100000
+        Lighting.GlobalShadows = false
+    elseif cmd == "day" then Lighting.ClockTime = 14
+    elseif cmd == "night" then Lighting.ClockTime = 0
     elseif cmd == "rejoin" then TeleportService:Teleport(game.PlaceId, LocalPlayer)
     elseif cmd == "serverhop" then TeleportService:Teleport(game.PlaceId)
     elseif cmd == "btools" then
